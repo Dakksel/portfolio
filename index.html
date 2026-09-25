@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Елдарын Төлеген — Портфолио</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <p class="eyebrow" id="eyebrow"></p>
+    <h1 id="name"></h1>
+    <p class="role" id="role"></p>
+    <p class="tagline" id="tagline"></p>
+    <div class="contact-row" id="contacts"></div>
+    <div class="hero-actions">
+      <button class="btn btn-primary" onclick="window.print()">PDF жүктеп алу</button>
+      <a class="btn btn-ghost" id="mailBtn" href="#">Хат жазу</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <section class="about">
+    <p class="section-label">01 — Өзім туралы</p>
+    <h2>Кім екенім</h2>
+    <p id="about"></p>
+    <ul class="highlight-list" id="highlights"></ul>
+  </section>
+
+  <section class="skills">
+    <p class="section-label">02 — Дағдылар</p>
+    <h2>Не істей аламын</h2>
+    <div class="skill-group">
+      <h3>Техникалық дағдылар</h3>
+      <div class="chip-row" id="skillsTech"></div>
+    </div>
+    <div class="skill-group">
+      <h3>Кәсіби дағдылар</h3>
+      <div class="chip-row" id="skillsPro"></div>
+    </div>
+  </section>
+
+  <section class="project">
+    <p class="section-label">03 — Таңдаулы жоба</p>
+    <h2>Жоба</h2>
+    <div class="project-card">
+      <p class="cat" id="projCat"></p>
+      <h3 id="projTitle"></h3>
+      <p id="projDesc"></p>
+      <div class="project-meta">
+        <div>
+          <h4>Міндеттер</h4>
+          <ul id="projTasks"></ul>
+        </div>
+        <div>
+          <h4>Құралдар</h4>
+          <ul id="projTools"></ul>
+        </div>
+      </div>
+      <div class="result-box" id="projResult"></div>
+    </div>
+  </section>
+
+  <section class="education">
+    <p class="section-label">04 — Білім</p>
+    <h2>Оқу жолы</h2>
+    <ul class="timeline" id="education"></ul>
+  </section>
+
+  <section class="experience">
+    <p class="section-label">05 — Жұмыс тәжірибесі</p>
+    <h2>Тәжірибе</h2>
+    <ul class="timeline" id="experience"></ul>
+  </section>
+
+  <section class="strengths">
+    <p class="section-label">06 — Күшті жақтар</p>
+    <h2>Негізгі күшті жақтар</h2>
+    <ul class="highlight-list" id="strengths"></ul>
+  </section>
+
+</main>
+
+<footer class="wrap">
+  <p id="footer"></p>
+</footer>
+
+<a href="admin.html" class="admin-link">админ</a>
+
+<script src="data.js"></script>
+<script>
+const d = getPortfolioData();
+
+document.getElementById("eyebrow").textContent = "Портфолио";
+document.getElementById("name").textContent = d.name;
+document.getElementById("role").textContent = d.title;
+document.getElementById("tagline").textContent = d.tagline;
+document.title = d.name + " — Портфолио";
+
+const contactsEl = document.getElementById("contacts");
+const contactParts = [
+  d.contacts.phone ? `<span>Тел: ${d.contacts.phone}</span>` : "",
+  d.contacts.email ? `<a href="mailto:${d.contacts.email}">${d.contacts.email}</a>` : "",
+  d.contacts.telegram ? `<a href="https://t.me/${d.contacts.telegram.replace('@','')}" target="_blank" rel="noopener">${d.contacts.telegram}</a>` : "",
+  d.contacts.whatsapp ? `<a href="https://wa.me/${d.contacts.whatsapp}" target="_blank" rel="noopener">WhatsApp</a>` : ""
+];
+contactsEl.innerHTML = contactParts.filter(Boolean).join("");
+document.getElementById("mailBtn").href = "mailto:" + d.contacts.email;
+
+document.getElementById("about").textContent = d.about;
+document.getElementById("highlights").innerHTML = d.highlights.map(h => `<li>${h}</li>`).join("");
+
+document.getElementById("skillsTech").innerHTML = d.skills.technical.map(s => `<span class="chip">${s}</span>`).join("");
+document.getElementById("skillsPro").innerHTML = d.skills.professional.map(s => `<span class="chip">${s}</span>`).join("");
+
+document.getElementById("projCat").textContent = d.project.category;
+document.getElementById("projTitle").textContent = d.project.title;
+document.getElementById("projDesc").textContent = d.project.description;
+document.getElementById("projTasks").innerHTML = d.project.tasks.map(t => `<li>${t}</li>`).join("");
+document.getElementById("projTools").innerHTML = d.project.tools.map(t => `<li>${t}</li>`).join("");
+document.getElementById("projResult").textContent = d.project.result;
+
+document.getElementById("education").innerHTML = d.education.map(e => `
+  <li>
+    <div class="tl-period">${e.period}</div>
+    <div>
+      <p class="tl-role">${e.degree}</p>
+      <p class="tl-place">${e.place}</p>
+      <p class="tl-duties">${e.field}</p>
+    </div>
+  </li>`).join("");
+
+document.getElementById("experience").innerHTML = d.experience.map(e => `
+  <li>
+    <div class="tl-period">${e.period}</div>
+    <div>
+      <p class="tl-role">${e.role}</p>
+      <p class="tl-place">${e.place} — ${e.location}</p>
+      <p class="tl-duties">${e.duties}</p>
+    </div>
+  </li>`).join("");
+
+document.getElementById("strengths").innerHTML = d.strengths.map(s => `<li>${s}</li>`).join("");
+
+document.getElementById("footer").textContent = d.footer;
+</script>
+
+</body>
+</html>

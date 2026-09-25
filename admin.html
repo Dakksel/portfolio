@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Портфолио — Админ панель</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body class="admin-body">
+
+<div id="gate" class="gate">
+  <h2>Админ кіру</h2>
+  <p class="admin-sub">Бұл бет тек сізге арналған. Құпия сөзді admin.html файлынан өзгерте аласыз.</p>
+  <input type="text" id="pwInput" placeholder="Құпия сөз">
+  <button class="btn btn-primary" onclick="checkPassword()">Кіру</button>
+  <p id="pwError" style="color:#a33;font-family:var(--mono);font-size:12px;display:none;">Құпия сөз қате</p>
+</div>
+
+<div id="panel" class="admin-shell" style="display:none;">
+  <h1>Портфолио — Админ панель</h1>
+  <p class="admin-sub">Мұнда мазмұнды өзгертіп, "Сақтау" батырмасын басыңыз. Өзгеріс алдымен осы құрылғыда ғана көрінеді — барлық қонақтарға көрсету үшін "data.js жүктеп алу" арқылы файлды жүктеп алып, жобаңыздағы data.js файлының орнына қойып, қайта деплой жасаңыз.</p>
+
+  <form id="form">
+
+    <fieldset>
+      <legend>Негізгі ақпарат</legend>
+      <label>Аты-жөні (қысқа)</label>
+      <input type="text" id="name">
+      <label>Толық аты-жөні</label>
+      <input type="text" id="fullName">
+      <label>Лауазым / рөлдер</label>
+      <input type="text" id="title">
+      <label>Слоган (tagline)</label>
+      <textarea id="tagline" rows="2"></textarea>
+      <label>Телефон</label>
+      <input type="tel" id="phone">
+      <label>Email</label>
+      <input type="email" id="email">
+      <label>Telegram (мысалы @Yeldaryn)</label>
+      <input type="text" id="telegram">
+      <label>WhatsApp нөмірі (тек сандар)</label>
+      <input type="text" id="whatsapp">
+    </fieldset>
+
+    <fieldset>
+      <legend>Өзім туралы</legend>
+      <label>Мәтін</label>
+      <textarea id="about" rows="6"></textarea>
+      <label>Негізгі белгілер (әр жолда біреу)</label>
+      <textarea id="highlights" rows="4"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Дағдылар</legend>
+      <label>Техникалық дағдылар (әр жолда біреу)</label>
+      <textarea id="skillsTech" rows="6"></textarea>
+      <label>Кәсіби дағдылар (әр жолда біреу)</label>
+      <textarea id="skillsPro" rows="6"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Таңдаулы жоба</legend>
+      <label>Санат</label>
+      <input type="text" id="projCat">
+      <label>Жоба атауы</label>
+      <input type="text" id="projTitle">
+      <label>Сипаттама</label>
+      <textarea id="projDesc" rows="4"></textarea>
+      <label>Міндеттер (әр жолда біреу)</label>
+      <textarea id="projTasks" rows="4"></textarea>
+      <label>Құралдар (әр жолда біреу)</label>
+      <textarea id="projTools" rows="3"></textarea>
+      <label>Нәтиже</label>
+      <textarea id="projResult" rows="2"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Білім</legend>
+      <label>Әр жол бір деңгей. Пішім: <code>кезең | атауы | оқу орны | бағыт/түсініктеме</code></label>
+      <textarea id="education" rows="5"></textarea>
+      <p class="hint">Мысалы: Бітірген жылы: 2025 | Бакалавр дәрежесі | Ш. Есенов атындағы ... университеті | Информатика білім беру</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Жұмыс тәжірибесі</legend>
+      <label>Әр жол бір орын. Пішім: <code>кезең | лауазым | мекеме, қала | міндеттер</code></label>
+      <textarea id="experience" rows="5"></textarea>
+      <p class="hint">Мысалы: Тамыз 2025 – Ақпан 2026 | Бухгалтер | Достық мектебі, Ақтөбе | Қаржылық құжаттама, есептілік...</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Негізгі күшті жақтар</legend>
+      <textarea id="strengths" rows="5"></textarea>
+    </fieldset>
+
+    <fieldset>
+      <legend>Төменгі жазба</legend>
+      <input type="text" id="footer">
+    </fieldset>
+
+  </form>
+
+  <div class="admin-actions">
+    <button class="btn btn-primary" onclick="saveDraft()">Сақтау (осы құрылғыда)</button>
+    <a class="btn btn-ghost" href="index.html" target="_blank">Алдын ала қарау</a>
+    <button class="btn btn-ghost" onclick="exportData()">data.js жүктеп алу</button>
+    <button class="btn btn-ghost" onclick="resetDraft()">Бастапқы деректерге қайтару</button>
+    <span class="status-msg" id="status"></span>
+  </div>
+</div>
+
+<script src="data.js"></script>
+<script>
+// ЕСКЕРТУ: бұл тек қарапайым тосқауыл, нақты қауіпсіздік емес —
+// статикалық сайтта серверлік аутентификация жоқ. Құпия сөзді осында өзгертіңіз.
+const ADMIN_PASSWORD = "yeldaryn2026";
+
+function checkPassword(){
+  const val = document.getElementById("pwInput").value;
+  if(val === ADMIN_PASSWORD){
+    document.getElementById("gate").style.display = "none";
+    document.getElementById("panel").style.display = "block";
+    loadIntoForm(getPortfolioData());
+  } else {
+    document.getElementById("pwError").style.display = "block";
+  }
+}
+
+function linesToArray(text){
+  return text.split("\n").map(s => s.trim()).filter(Boolean);
+}
+function arrayToLines(arr){
+  return (arr || []).join("\n");
+}
+
+function loadIntoForm(d){
+  name.value = d.name; fullName.value = d.fullName; title.value = d.title;
+  tagline.value = d.tagline;
+  phone.value = d.contacts.phone; email.value = d.contacts.email;
+  telegram.value = d.contacts.telegram; whatsapp.value = d.contacts.whatsapp;
+
+  about.value = d.about;
+  highlights.value = arrayToLines(d.highlights);
+
+  skillsTech.value = arrayToLines(d.skills.technical);
+  skillsPro.value = arrayToLines(d.skills.professional);
+
+  projCat.value = d.project.category; projTitle.value = d.project.title;
+  projDesc.value = d.project.description;
+  projTasks.value = arrayToLines(d.project.tasks);
+  projTools.value = arrayToLines(d.project.tools);
+  projResult.value = d.project.result;
+
+  education.value = d.education.map(e => [e.period, e.degree, e.place, e.field].join(" | ")).join("\n");
+  experience.value = d.experience.map(e => [e.period, e.role, `${e.place}, ${e.location}`, e.duties].join(" | ")).join("\n");
+
+  strengths.value = arrayToLines(d.strengths);
+  footer.value = d.footer;
+}
+
+function parsePipeLines(text, keys){
+  return linesToArray(text).map(line => {
+    const parts = line.split("|").map(p => p.trim());
+    const obj = {};
+    keys.forEach((k,i) => obj[k] = parts[i] || "");
+    return obj;
+  });
+}
+
+function buildDataFromForm(){
+  const eduRows = parsePipeLines(education.value, ["period","degree","place","field"]);
+  const expRows = parsePipeLines(experience.value, ["period","role","placeLoc","duties"]).map(r => {
+    const idx = r.placeLoc.lastIndexOf(",");
+    return {
+      period: r.period, role: r.role, duties: r.duties,
+      place: idx > -1 ? r.placeLoc.slice(0, idx).trim() : r.placeLoc,
+      location: idx > -1 ? r.placeLoc.slice(idx+1).trim() : ""
+    };
+  });
+
+  return {
+    name: name.value, fullName: fullName.value, title: title.value, tagline: tagline.value,
+    contacts: { phone: phone.value, email: email.value, telegram: telegram.value, whatsapp: whatsapp.value },
+    about: about.value,
+    highlights: linesToArray(highlights.value),
+    skills: { technical: linesToArray(skillsTech.value), professional: linesToArray(skillsPro.value) },
+    project: {
+      category: projCat.value, title: projTitle.value, description: projDesc.value,
+      tasks: linesToArray(projTasks.value), tools: linesToArray(projTools.value), result: projResult.value
+    },
+    education: eduRows,
+    experience: expRows,
+    strengths: linesToArray(strengths.value),
+    footer: footer.value
+  };
+}
+
+function saveDraft(){
+  const data = buildDataFromForm();
+  localStorage.setItem("portfolioDraft", JSON.stringify(data));
+  const s = document.getElementById("status");
+  s.textContent = "Сақталды ✓ (тек осы құрылғыда — жариялау үшін data.js жүктеп алыңыз)";
+  setTimeout(() => s.textContent = "", 6000);
+}
+
+function resetDraft(){
+  if(confirm("Барлық өзгерістер өшіп, бастапқы деректер қайтарылады. Жалғастыру керек пе?")){
+    localStorage.removeItem("portfolioDraft");
+    loadIntoForm(PORTFOLIO_DATA);
+    document.getElementById("status").textContent = "Бастапқы деректерге қайтарылды";
+  }
+}
+
+function exportData(){
+  const data = buildDataFromForm();
+  const fileContent = `// PORTFOLIO_DATA — admin.html арқылы жаңартылды.
+// Бұл файлды жобаңыздағы data.js файлының орнына қойып, қайта деплой жасаңыз.
+const PORTFOLIO_DATA = ${JSON.stringify(data, null, 2)};
+
+function getPortfolioData() {
+  try {
+    const draft = localStorage.getItem("portfolioDraft");
+    if (draft) return JSON.parse(draft);
+  } catch (e) {
+    console.warn("Draft оқылмады, негізгі дерек қолданылады.", e);
+  }
+  return PORTFOLIO_DATA;
+}
+`;
+  const blob = new Blob([fileContent], {type: "text/javascript"});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = "data.js";
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+// Форм элементтерін глобалды айнымалы етіп аламыз (id арқылы)
+const name=document.getElementById("name"), fullName=document.getElementById("fullName"),
+  title=document.getElementById("title"), tagline=document.getElementById("tagline"),
+  phone=document.getElementById("phone"), email=document.getElementById("email"),
+  telegram=document.getElementById("telegram"), whatsapp=document.getElementById("whatsapp"),
+  about=document.getElementById("about"), highlights=document.getElementById("highlights"),
+  skillsTech=document.getElementById("skillsTech"), skillsPro=document.getElementById("skillsPro"),
+  projCat=document.getElementById("projCat"), projTitle=document.getElementById("projTitle"),
+  projDesc=document.getElementById("projDesc"), projTasks=document.getElementById("projTasks"),
+  projTools=document.getElementById("projTools"), projResult=document.getElementById("projResult"),
+  education=document.getElementById("education"), experience=document.getElementById("experience"),
+  strengths=document.getElementById("strengths"), footer=document.getElementById("footer");
+</script>
+
+</body>
+</html>
